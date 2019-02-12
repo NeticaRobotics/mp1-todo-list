@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}
+  Logged Out
+{% endblock %}
+{% block contet %}
+  <div class="jumbotron">
+    <h1 class="display-3">Log Out Success</h1>
+    <p class="lead">Your account is logged out. <a href="{% url 'core:index' %}">Log In Here.</a> </p>
+  </div>
+{% endblock %}

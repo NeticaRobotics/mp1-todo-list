@@ -1,0 +1,4 @@
+virtualenv
+todoenv/
+*.pyc
+*.sqlite3
