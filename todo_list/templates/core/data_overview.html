@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}
+  Profile
+{% endblock %}
+{% block content %}
+  <div class="jumbotron">
+    <h1 class="display-3">Data Overview</h1>
+  </div>
+  <ul>
+    <li>Total cards: {{total_cards}}</li>
+    <li>Finished percent: {{finished_percent}}</li>
+    <li>Unfinished percent: {{unfinished_percent}}</li>
+    <li>Low percent: {{low_percent}}</li>
+    <li>Normal percent: {{normal_percent}}</li>
+    <li>Urgent percent: {{urgent_percent}}</li>
+  </ul>
+
+  <h5 class="ml-4"> <a href="{% url 'core:index' %}">Go Back</a> </h5>
+{% endblock %}
+{% block script_ %}
+  <script type="text/javascript">
+    function test_filter(){
+      let data_ = {
+        from: "2019-02-01",
+        to: "2019-03-31"
+      }
+      $.ajax({
+        url: "{% url 'core:dataoverview' request.user.id %}",
+        contentType: "application/json",type:'GET',
+        data: data_,
+        success: function(result){console.log(result);},
+        error: function (xhr, ajaxOptions, thrownError){console.log(thrownError);}
+      })
+    }
+  </script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}
+  Profile
+{% endblock %}
+{% block content %}
+  <div class="jumbotron">
+    <h1 class="display-3">{{request.user.first_name}} {{request.user.last_name}}</h1>
+    <p class="lead">{{request.user.email}}</p>
+    <ul>
+      <li>{{request.user.username}}</li>
+      <li>{{request.user.userdata.ocupation}}</li>
+    </ul>
+
+    <h5> <a href="{% url 'core:index' %}">Go Back</a> </h5>
+  </div>
+{% endblock %}

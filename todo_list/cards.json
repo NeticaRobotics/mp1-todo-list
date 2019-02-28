@@ -1,0 +1,13 @@
+[{
+	"model":"core.card",
+	"pk": 1,
+	"fields":{
+		"name":"card1"
+	}
+},{
+	"model":"core.card",
+	"pk":2,
+	"fields":{
+		"name":"card2"
+	}
+}]
