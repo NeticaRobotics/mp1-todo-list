@@ -14,6 +14,9 @@ import os
 
 
 from django.urls import reverse_lazy
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
@@ -45,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social.apps.django_app',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +60,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'todo_list.urls'
@@ -70,6 +77,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'social_django.context_processors.backends',  # <--
+                'social_django.context_processors.login_redirect', # <--
             ],
         },
     },
@@ -108,6 +118,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.linkedin.LinkedinOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -134,3 +150,33 @@ STATICFILES_DIRS = [
 # MEDIA FILES
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
+
+GRAPHENE = {
+    'SCHEMA': 'todo_list.schema.schema'
+}
+
+
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/settings/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/settings/'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+
+SOCIAL_AUTH_LOGIN_URL = 'login'
+
+SOCIAL_AUTH_GITHUB_KEY = 'f845d5a4c33a3a7e17b5'
+SOCIAL_AUTH_GITHUB_SECRET = '61d8c7b246a370f6ad25b3b045e0d0b95c5be437'
+
+SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = '78sxq9ju9fpkun'
+SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = 'a5qbERfEa3u6jQwI'
+# Add email to requested authorizations.
+SOCIAL_AUTH_LINKEDIN_OAUTH2_SCOPE = ['r_basicprofile', 'r_emailaddress']
+# Add the fields so they will be requested from linkedin.
+SOCIAL_AUTH_LINKEDIN_OAUTH2_FIELD_SELECTORS = ['email-address', 'headline', 'industry']
+# Arrange to add the fields to UserSocialAuth.extra_data
+SOCIAL_AUTH_LINKEDIN_OAUTH2_EXTRA_DATA = [('id', 'id'),
+                                   ('firstName', 'first_name'),
+                                   ('lastName', 'last_name'),
+                                   ('emailAddress', 'email_address'),
+                                   ('headline', 'headline'),
+                                   ('industry', 'industry')]
+# from config import *

@@ -15,9 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.decorators.csrf import csrf_exempt # New library
+
+from todo_list.schema import schema
+from core.views import SignUpView, PrivateGraphQLView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('oauth/', include('social_django.urls', namespace='social')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('signup/', SignUpView.as_view(), name="signup"),
+
     path('', include('core.urls'), name="core"),
+    path('api/', csrf_exempt(PrivateGraphQLView.as_view(graphiql=True)), name="api"),
 ]

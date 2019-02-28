@@ -1,7 +1,147 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="jumbotron">
-  <h1 class="display-3">Index</h1>
-  <p class="lead">Core index</p>
+  <h1 class="display-3">To Do List</h1>
+  <p class="lead">Hi {{ request.user.username }}</p>
 </div>
+<div class="container">
+  <div class="row">
+    <div class="col-12 my-5">
+      <h5><a href="{% url 'core:profile' request.user.id %}">My profile</a></h5>
+      <h5><a href="{% url 'core:dataoverview' request.user.id %}">Data Overview</a></h5>
+      <h5><a href="{% url 'logout' %}">logout</a></h5>
+    </div>
+    <div class="col-12">
+      {% for card in cards %}
+        <div class="card">
+          <div class="card-header">
+            <h4>{{ card.name }}</h4>
+          </div>
+          <h5 class="card-title p-3">
+            <p>Importance: {{ card.get_importance_display }}</p>
+            <p>Limit date: {{ card.created }}</p>
+          </h5>
+          <div class="card-body">
+            <p class="card-text">{{ card.description }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script_ %}
+  <script type="text/javascript">
+    let USER_ID = {{request.user.id}};
+    function api_call(data_, success_, error_){
+      $.ajax({url: "{% url 'api' %}",
+        contentType: "application/json",type:'POST',
+        data: data_,
+        success: success_ || function(result){},
+        error: error_ || function (xhr, ajaxOptions, thrownError){}
+      });
+    }
+    function create_card(){
+      // GET CARD VALUES
+      let card = {
+        'name': "test",
+        'description': "description",
+        'importance': 1,
+        'limit': "2019-10-01 15:26"
+      }
+      let CREATE_CARD_QUERY =
+        `mutation createCard{
+          createCard(input:{
+            name: "`+card['name']+`",
+            description: "`+card['description']+`",
+            importance: `+card['importance']+`,
+            limit: "`+card['limit']+`",
+            author: `+{{request.user.id}}+`
+          }) {
+            ok
+            card {
+              id
+              name
+              description
+              importance
+              limit
+              finished
+            }
+          }
+        }`;
+      api_call(JSON.stringify({ query: CREATE_CARD_QUERY}),
+        function (result){
+          //SUCCESS
+          console.log(result);
+        },
+        function(xhr, ajaxOptions, thrownError){
+          //ERROR
+          console.log(JSON.stringify({ query: CREATE_CARD_QUERY}));
+          console.log(thrownError);
+        });
+    }
+    function update_card(){
+      // GET CARD VALUES
+      let card = {
+        'card_id': 5,
+        'name': "test_update",
+        'description': "description",
+        'importance': 2,
+        'finished': false,
+        'limit': "2019-10-01 15:26"
+      }
+      let UPDATE_CARD_QUERY =
+        `mutation updateCard{
+          updateCard(id: `+card['card_id']+`, input:{
+            name: "`+card['name']+`",
+            description: "`+card['description']+`",
+            importance: `+card['importance']+`,
+            limit: "`+card['limit']+`",
+            finished: `+card['finished']+`,
+          }) {
+            ok
+            card {
+              id
+              name
+              description
+              importance
+              limit
+              finished
+            }
+          }
+        }`;
+      api_call(JSON.stringify({ query: UPDATE_CARD_QUERY}),
+        function (result){
+          //SUCCESS
+          console.log(result);
+        },
+        function(xhr, ajaxOptions, thrownError){
+          //ERROR
+          console.log(JSON.stringify({ query: CREATE_CARD_QUERY}));
+          console.log(thrownError);
+        });
+    }
+    function delete_card(){
+      // GET CARD VALUES
+      let card = {
+        'card_id': 5
+      }
+      let DELETE_CARD_QUERY =
+        `mutation deleteCard{
+          deleteCard(id: `+card['card_id']+`) {
+            ok
+          }
+        }`;
+      api_call(JSON.stringify({ query: DELETE_CARD_QUERY}),
+        function (result){
+          //SUCCESS
+          console.log(result);
+        },
+        function(xhr, ajaxOptions, thrownError){
+          //ERROR
+          console.log(JSON.stringify({ query: CREATE_CARD_QUERY}));
+          console.log(thrownError);
+        });
+    }
+  </script>
 {% endblock %}
