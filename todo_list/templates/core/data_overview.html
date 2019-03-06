@@ -1,36 +1,199 @@
 {% extends "base.html" %}
-{% block title %}
-  Profile
-{% endblock %}
+{% block title %}Profile{% endblock %}
 {% block content %}
-  <div class="jumbotron">
-    <h1 class="display-3">Data Overview</h1>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<section class="hero is-info">
+  <div class="hero-body">
+    <div class="container"></div>
+      <h1 class="title">
+        Data Overview
+      </h1>
+    </div>
   </div>
-  <ul>
-    <li>Total cards: {{total_cards}}</li>
-    <li>Finished percent: {{finished_percent}}</li>
-    <li>Unfinished percent: {{unfinished_percent}}</li>
-    <li>Low percent: {{low_percent}}</li>
-    <li>Normal percent: {{normal_percent}}</li>
-    <li>Urgent percent: {{urgent_percent}}</li>
-  </ul>
-
-  <h5 class="ml-4"> <a href="{% url 'core:index' %}">Go Back</a> </h5>
+</section>
+<br>
+<br>
+<section>
+  <div class="container">
+    <div class="columns">
+      <div class="column is-8 is-offset-2">
+         <div class="field is-horizontal">
+            <div class="field-body">
+               <div class="field">
+                  <p class="control is-expanded">
+                     <input id="from" class="input" type="date">
+                  </p>
+               </div>
+               <div class="field">
+                  <p class="control is-expanded">
+                     <input id="to" class="input" type="date">
+                  </p>
+               </div>
+               <div class="field">
+                  <p class="control">
+                     <button id="filter" class="button is-info is-fullwidth">
+                        Filter
+                     </button>
+                  </p>
+               </div>
+            </div>
+         </div>
+      </div>
+    </div>
+  </div>
+</section>
+<br>
+<br>
+<br>
+<section>
+  <div class="container">
+      <div class="columns">
+          <div id="divChartBar" class="column is-6">
+              <canvas id="chartBar"></canvas>
+          </div>
+          <div id="divChartPie" class="column is-6">
+              <canvas id="chartPie"></canvas>
+          </div>
+      </div>
+  </div>
+</section>
 {% endblock %}
 {% block script_ %}
-  <script type="text/javascript">
-    function test_filter(){
+<script type="text/javascript">
+   $(document).ready(function() {
+      $("#from").val("");
+      $("#to").val("");
+      loadCharts();
+      $("#filter").click(function() {
+         if($("#from").val() && $("#to").val()) {
+            filter($("#from").val(), $("#to").val());
+         } else {
+            loadCharts();
+         } 
+      }); 
+   });
+
+   function filter(f, t) {
       let data_ = {
-        from: "2019-02-01",
-        to: "2019-03-31"
+         from: f,
+         to: t
       }
       $.ajax({
-        url: "{% url 'core:dataoverview' request.user.id %}",
-        contentType: "application/json",type:'GET',
-        data: data_,
-        success: function(result){console.log(result);},
-        error: function (xhr, ajaxOptions, thrownError){console.log(thrownError);}
+         url: "{% url 'core:dataoverview' request.user.id %}",
+         contentType: "application/json",
+         type: 'GET',
+         data: data_,
+         success: function (result) {
+            reloadCharts(result);
+         },
+         error: function (xhr, ajaxOptions, thrownError) {
+            console.log(thrownError);
+         }
       })
-    }
-  </script>
+   }
+
+   function loadCharts() {
+      $("#chartBar").remove();
+      $("#chartPie").remove();
+      $("#divChartBar").html("<canvas id='chartBar'></canvas>");
+      $("#divChartPie").html("<canvas id='chartPie'></canvas>");
+      var ctx = document.getElementById("chartBar");
+      var chartBar = new Chart(ctx, {
+         type: 'bar',
+         data: {
+            labels: ["Low", "Normal", "Urgent"],
+            datasets: [{
+                  label: ["Total cards {{ total_cards }}"],
+                  data: [{{low_percent}}, {{normal_percent}}, {{urgent_percent}}],
+                  backgroundColor: [
+                     'rgba(75, 192, 192, 0.8)',
+                     'rgba(255, 206, 86, 0.8)',
+                     'rgba(255, 99, 132, 0.8)',
+                  ],
+                  borderColor: [
+                     'rgba(75, 192, 192, 1)',              
+                     'rgba(255, 206, 86, 1)',
+                     'rgba(255,99,132,1)',
+                  ],
+                  borderWidth: 1
+            }]
+         }
+      });
+
+      var ctx = document.getElementById("chartPie");
+      var chartPie = new Chart(ctx, {
+         type: 'doughnut',
+         data: {
+            datasets: [{
+               data: [{{unfinished_percent}}, {{finished_percent}}],
+               backgroundColor: [
+                     'rgba(153, 102, 255, 0.8)',
+                     'rgba(54, 162, 235, 0.8)',
+               ],
+               borderColor: [
+                     'rgba(153, 102, 255, 1)', 
+                     'rgba(54, 162, 235, 1)',          
+               ],
+               borderWidth: 1
+            }],
+            labels: [
+               'Unfinished',
+               'Finished'
+            ]
+         }
+      });
+   }
+
+   function reloadCharts(data) {
+      $("#chartBar").remove();
+      $("#chartPie").remove();
+      $("#divChartBar").html("<canvas id='chartBar'></canvas>");
+      $("#divChartPie").html("<canvas id='chartPie'></canvas>");
+      var ctx = document.getElementById("chartBar");
+      var chartBar = new Chart(ctx, {
+         type: 'bar',
+         data: {
+            labels: ["Low", "Normal", "Urgent"],
+            datasets: [{
+                  label: ["Total cards " + data.d.total_cards],
+                  data: [data.d.low_percent, data.d.normal_percent, data.d.urgent_percent],
+                  backgroundColor: [
+                     'rgba(75, 192, 192, 0.8)',
+                     'rgba(255, 206, 86, 0.8)',
+                     'rgba(255, 99, 132, 0.8)',
+                  ],
+                  borderColor: [
+                     'rgba(75, 192, 192, 1)',              
+                     'rgba(255, 206, 86, 1)',
+                     'rgba(255,99,132,1)',
+                  ],
+                  borderWidth: 1
+            }]
+         }
+      });
+
+      var ctx = document.getElementById("chartPie");
+      var chartPie = new Chart(ctx, {
+         type: 'doughnut',
+         data: {
+            datasets: [{
+               data: [data.d.unfinished_percent, data.d.finished_percent],
+               backgroundColor: [
+                     'rgba(153, 102, 255, 0.8)',
+                     'rgba(54, 162, 235, 0.8)',
+                  ],
+                  borderColor: [
+                     'rgba(153, 102, 255, 1)', 
+                     'rgba(54, 162, 235, 1)',          
+                  ],
+                  borderWidth: 1
+            }],
+            labels: [
+               'Unfinished',
+               'Finished'
+            ]
+         },
+      });
+   } 
+</script>
 {% endblock %}

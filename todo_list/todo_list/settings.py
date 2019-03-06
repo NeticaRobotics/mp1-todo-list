@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social.apps.django_app',
     'core',
+    'bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -154,8 +155,6 @@ MEDIA_URL = '/media/'
 GRAPHENE = {
     'SCHEMA': 'todo_list.schema.schema'
 }
-
-
 
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/settings/'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/settings/'

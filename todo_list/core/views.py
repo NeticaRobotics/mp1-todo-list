@@ -22,10 +22,12 @@ class LoginRequiredView(View):
 
 class Index(LoginRequiredView):
     def get(self, request, *args, **kwargs):
+        finishedCards = Card.objects.filter(author=request.user, finished=True)
         cards = Card.objects.filter(author=request.user, finished=False)
         return render(request, 'index.html', {
-            'cards': cards
-        })
+            'cards': cards,
+            'finishedCards': finishedCards
+        })        
 
 class DataOverview(LoginRequiredView):
     def get(self, request, *args, **kwargs):
@@ -42,12 +44,12 @@ class DataOverview(LoginRequiredView):
 
         total_cards = cards.count()
         total_cards = 0.00000001 if total_cards == 0 else total_cards
-        finished_percent = cards.filter(finished=True).count() / total_cards * 100.0
-        unfinished_percent = cards.filter(finished=False).count() / total_cards * 100.0
+        finished_percent = cards.filter(finished=True).count()
+        unfinished_percent = cards.filter(finished=False).count()
 
-        low_percent = cards.filter(importance=1).count() / total_cards * 100.0
-        normal_percent = cards.filter(importance=2).count() / total_cards * 100.0
-        urgent_percent = cards.filter(importance=3).count() / total_cards * 100.0
+        low_percent = cards.filter(importance=1).count()
+        normal_percent = cards.filter(importance=2).count()
+        urgent_percent = cards.filter(importance=3).count()
 
         ctx = {
             'total_cards': total_cards if total_cards >= 1 else 0,
@@ -90,7 +92,6 @@ class SignUpView(View):
             return render(request, 'registration/signup.html', {
                 'form': form
             })
-
 
 @login_required
 def settings(request):

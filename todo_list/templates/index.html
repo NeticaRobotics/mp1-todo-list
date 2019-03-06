@@ -1,147 +1,540 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}To Do List{% endblock %}
+
 {% block content %}
-<div class="jumbotron">
-  <h1 class="display-3">To Do List</h1>
-  <p class="lead">Hi {{ request.user.username }}</p>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="col-12 my-5">
-      <h5><a href="{% url 'core:profile' request.user.id %}">My profile</a></h5>
-      <h5><a href="{% url 'core:dataoverview' request.user.id %}">Data Overview</a></h5>
-      <h5><a href="{% url 'logout' %}">logout</a></h5>
-    </div>
-    <div class="col-12">
-      {% for card in cards %}
-        <div class="card">
-          <div class="card-header">
-            <h4>{{ card.name }}</h4>
-          </div>
-          <h5 class="card-title p-3">
-            <p>Importance: {{ card.get_importance_display }}</p>
-            <p>Limit date: {{ card.created }}</p>
-          </h5>
-          <div class="card-body">
-            <p class="card-text">{{ card.description }}</p>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
+   <style>
+      .box {
+         margin-bottom: 15px;
+      }
+      .float {
+         position:fixed;
+         width:60px;
+         height:60px;
+         bottom:40px;
+         right:40px;
+         background-color:#209cee;
+         color:#FFF;
+         border-radius:50px;
+         text-align:center;
+         box-shadow: 2px 2px 3px #999;
+      }
+
+      .float:hover {
+         color: #FFF;
+      }
+
+      .my-float {
+         margin-top:22px;
+      }
+   </style>
+   <section class="section">
+      <div class="container">
+         <div class="columns">
+            <div class="column is-3">
+               <aside class="is-medium menu">
+                  <p class="menu-label">
+                     Categories
+                  </p>
+                  <ul class="menu-list">
+                     <li data-target="pane-active" id="tab-active" class="is-active">
+                        <a class="has-background-info has-text-white">
+                           <span class="icon is-small"><i class="fas fa-thumbtack"></i></span>
+                           <span>Active</span>
+                        </a>
+                     </li>
+                     <li data-target="pane-finished" id="tab-finished">
+                        <a>
+                           <span class="icon is-small"><i class="fas fa-check"></i></span>
+                           <span>Finished</span>
+                        </a>
+                     </li>
+                  </ul>
+                  <p class="menu-label">
+                     Search
+                  </p>
+                  <div class="field">
+                     <p class="control has-icons-left">
+                        <input id="search-input" class="input" type="text" placeholder="Search...">
+                        <span class="icon is-small is-left">
+                           <i class="fas fa-search"></i>
+                        </span>
+                     </p>
+                  </div>
+               </aside>
+            </div>
+            <div class="column is-9">
+               <div class="tab-content">
+                  <div class="tab-pane" id="pane-active" class="level">
+                     <h3 class="title is-3">Tareas Activas ¯\_(ツ)_/¯</h3>
+                     <ul class="card-list">
+                        {% for card in cards %}
+                        <li id="card-{{card.id}}">
+                           <div class="box" id="task">
+                              <h4 class="title is-4">
+                                 <article class="media">
+                                    <div class="media-content">
+                                       {{ card.name }}
+                                    </div>
+                                    <div class="media-right">
+                                       <a class="completeTask button is-rounded is-small is-info is-outlined" 
+                                          cardId="{{ card.id }}"
+                                          name="{{ card.name }}"
+                                          desc="{{ card.description }}"
+                                          impor="{{ card.importance }}"
+                                          date ="{{ card.limit|date:'Y-m-d' }}"
+                                          time ="{{ card.limit|time:'h:i' }}"
+                                          onclick="completeTask(
+                                             $(this).attr('cardId'),
+                                             $(this).attr('name'),
+                                             $(this).attr('desc'),
+                                             $(this).attr('impor'),
+                                             $(this).attr('date'),
+                                             $(this).attr('time'))">
+                                          <span class="icon is-small">
+                                             <i class="fas fa-check"></i>
+                                          </span>
+                                       </a>
+                                       <a class="editTask button is-rounded is-small is-warning is-outlined" 
+                                          cardId="{{ card.id }}"
+                                          name="{{ card.name }}"
+                                          desc="{{ card.description }}"
+                                          impor="{{ card.importance }}"
+                                          date ="{{ card.limit|date:'Y-m-d' }}"
+                                          time ="{{ card.limit|time:'h:i' }}"
+                                          onclick="editTask(
+                                             $(this).attr('cardId'),
+                                             $(this).attr('name'),
+                                             $(this).attr('desc'),
+                                             $(this).attr('impor'),
+                                             $(this).attr('date'),
+                                             $(this).attr('time'),
+                                             false)">
+                                          <span class="icon is-small">
+                                             <i class="fas fa-edit"></i>
+                                          </span>
+                                       </a>
+                                       <a class="deleteTask button is-rounded is-small is-danger is-outlined" 
+                                          cardId="{{ card.id }}" 
+                                          onclick="deleteTask($(this).attr('cardId'))">
+                                          <span class="icon is-small">
+                                             <i class="fas fa-trash-alt"></i>
+                                          </span>
+                                       </a>
+                                    </div>
+                                 </article>
+                              </h4>
+                              <article class="message 
+                                 {% if card.importance == 1 %}
+                                    is-primary
+                                 {% elif card.importance == 2 %}
+                                    is-warning
+                                 {% elif card.importance == 3 %}
+                                    is-danger
+                                 {% endif %}">
+                                 <div class="message-body">{{ card.description }}</div>
+                              </article>
+                              <div class="media">
+                                 <div class="media-content">
+                                    <div class="content">
+                                       <p>Limit date: {{ card.limit }}</p>
+                                    </div>
+                                 </div>
+                                 <div class="media-right">
+                                    <div class="control">
+                                       <div class="tags has-addons">
+                                          <span class="tag is-black">Importance</span>
+                                          <span class="tag 
+                                             {% if card.importance == 1 %}
+                                                is-primary
+                                             {% elif card.importance == 2 %}
+                                                is-warning
+                                             {% elif card.importance == 3 %}
+                                                is-danger
+                                             {% endif %}">
+                                             {{ card.get_importance_display }}
+                                          </span>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </li>
+                        {% endfor %}
+                     </ul>
+                  </div>
+                  <div class="tab-pane" id="pane-finished" class="level" style="display: none">
+                     <h3 class="title is-3">Tareas Completadas ¯\_(ツ)_/¯</h3>
+                     <ul class="card-list">
+                        {% for card in finishedCards %}
+                        <li>
+                           <div id="task" class="box">
+                              <h4 class="title is-4">
+                                 <article class="media">
+                                    <div class="media-content">
+                                       {{ card.name }}
+                                    </div>
+                                    <div class="media-right">
+                                       <a class="incompleteTask button is-rounded is-small is-info is-outlined" 
+                                          cardId="{{ card.id }}"
+                                          name="{{ card.name }}"
+                                          desc="{{ card.description }}"
+                                          impor="{{ card.importance }}"
+                                          date ="{{ card.limit|date:'Y-m-d' }}"
+                                          time ="{{ card.limit|time:'h:i' }}"
+                                          onclick="incompleteTask(
+                                             $(this).attr('cardId'),
+                                             $(this).attr('name'),
+                                             $(this).attr('desc'),
+                                             $(this).attr('impor'),
+                                             $(this).attr('date'),
+                                             $(this).attr('time'))">
+                                          <span class="icon is-small">
+                                             <i class="fas fa-times"></i>
+                                          </span>
+                                       </a>
+                                       <a class="editTask button is-rounded is-small is-warning is-outlined" 
+                                          cardId="{{ card.id }}"
+                                          name="{{ card.name }}"
+                                          desc="{{ card.description }}"
+                                          impor="{{ card.importance }}"
+                                          date ="{{ card.limit|date:'Y-m-d' }}"
+                                          time ="{{ card.limit|time:'h:i' }}"
+                                          onclick="editTask(
+                                             $(this).attr('cardId'),
+                                             $(this).attr('name'),
+                                             $(this).attr('desc'),
+                                             $(this).attr('impor'),
+                                             $(this).attr('date'),
+                                             $(this).attr('time'),
+                                             true)">
+                                          <span class="icon is-small">
+                                             <i class="fas fa-edit"></i>
+                                          </span>
+                                       </a>
+                                       <a class="deleteTask button is-rounded is-small is-danger is-outlined" 
+                                          cardId="{{ card.id }}" 
+                                          onclick="deleteTask($(this).attr('cardId'))">
+                                          <span class="icon is-small">
+                                             <i class="fas fa-trash-alt"></i>
+                                          </span>
+                                       </a>
+                                    </div>
+                                 </article>
+                              </h4>
+                              <article class="message 
+                                 {% if card.importance == 1 %}
+                                    is-primary
+                                 {% elif card.importance == 2 %}
+                                    is-warning
+                                 {% elif card.importance == 3 %}
+                                    is-danger
+                                 {% endif %}">
+                                 <div class="message-body">{{ card.description }}</div>
+                              </article>
+                              <div class="media">
+                                 <div class="media-content">
+                                    <div class="content">
+                                       <p>Limit date: {{ card.limit }}</p>
+                                    </div>
+                                 </div>
+                                 <div class="media-right">
+                                    <div class="control">
+                                       <div class="tags has-addons">
+                                          <span class="tag is-black">Importance</span>
+                                          <span class="tag 
+                                             {% if card.importance == 1 %}
+                                                is-primary
+                                             {% elif card.importance == 2 %}
+                                                is-warning
+                                             {% elif card.importance == 3 %}
+                                                is-danger
+                                             {% endif %}">
+                                             {{card.get_importance_display }}
+                                          </span>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </li>
+                        {% endfor %}
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+   </section>
+   <a href="#" class="float">
+      <i class="fa fa-plus my-float"></i>
+   </a>
 {% endblock %}
+
 {% block script_ %}
-  <script type="text/javascript">
-    let USER_ID = {{request.user.id}};
-    function api_call(data_, success_, error_){
-      $.ajax({url: "{% url 'api' %}",
-        contentType: "application/json",type:'POST',
-        data: data_,
-        success: success_ || function(result){},
-        error: error_ || function (xhr, ajaxOptions, thrownError){}
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+   <script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
+   <script type="text/javascript">
+      $(document).ready(function () {
+         $("#search-input").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $(".card-list li").filter(function () {
+               $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+         });
+
+         $(".float").click(async function() {
+            const {value: formValues} = await Swal.fire({
+               title: 'Create Card',
+               html:
+                  '<input id="swal-input1" class="swal2-input" placeholder="Titulo">' +
+                  '<input id="swal-input2" class="swal2-input" placeholder="Descripcion">' +
+                  '<select id="swal-input3" class="swal2-input"><option value="1">Low</option><option value="2">Normal</option><option value="3">Urgent</option></select>' +
+                  '<input type="date" id="swal-input4" class="swal2-input">' +
+                  '<input type="time" id="swal-input5" class="swal2-input">',
+               focusConfirm: false,
+               preConfirm: () => {
+                  return [
+                     document.getElementById('swal-input1').value,
+                     document.getElementById('swal-input2').value,
+                     document.getElementById('swal-input3').value,
+                     document.getElementById('swal-input4').value,
+                     document.getElementById('swal-input5').value,
+                  ]
+               }
+            })
+            if (formValues) {
+               create_card(formValues);
+            }
+         });
       });
-    }
-    function create_card(){
-      // GET CARD VALUES
-      let card = {
-        'name': "test",
-        'description': "description",
-        'importance': 1,
-        'limit': "2019-10-01 15:26"
+
+      function deleteTask(id) {
+         Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+         }).then((result) => {
+            if (result.value) {
+               delete_card(parseInt(id));
+            }   
+         })
       }
-      let CREATE_CARD_QUERY =
-        `mutation createCard{
-          createCard(input:{
-            name: "`+card['name']+`",
-            description: "`+card['description']+`",
-            importance: `+card['importance']+`,
-            limit: "`+card['limit']+`",
-            author: `+{{request.user.id}}+`
-          }) {
-            ok
-            card {
-              id
-              name
-              description
-              importance
-              limit
-              finished
+
+      function completeTask(id, name, desc, impor, date, time) {
+         var limit = date + " " + time;
+         update_card(id, name, desc, impor, limit, true);
+      }
+
+      function incompleteTask(id, name, desc, impor, date, time) {
+         var limit = date + " " + time;
+         update_card(id, name, desc, impor, limit, false);
+      }
+
+      async function editTask(id, name, desc, impor, date, time, finis) {
+         var htmlselect;
+         if(impor == 1) {
+            htmlselect = '<select id="swal-input3" class="swal2-input"><option value="1" selected>Low</option><option value="2">Normal</option><option value="3">Urgent</option></select>';
+         } else if (impor == 2) {
+            htmlselect = '<select id="swal-input3" class="swal2-input"><option value="1">Low</option><option value="2" selected>Normal</option><option value="3">Urgent</option></select>';
+         } else if (impor == 3) {
+            htmlselect = '<select id="swal-input3" class="swal2-input"><option value="1">Low</option><option value="2">Normal</option><option value="3" selected>Urgent</option></select>';
+         }
+         const {value: formValues} = await Swal.fire({
+            title: 'Edit Card',
+            html:
+               '<input id="swal-input1" class="swal2-input" placeholder="Titulo" value="'+ name +'">' +
+               '<input id="swal-input2" class="swal2-input" placeholder="Descripcion" value="'+ desc +'">' +
+               htmlselect +
+               '<input type="date" id="swal-input4" class="swal2-input"  value="'+ date +'">' +
+               '<input type="time" id="swal-input5" class="swal2-input" value="'+ time +'">',
+            focusConfirm: false,
+            preConfirm: () => {
+               return [
+                  document.getElementById('swal-input1').value,
+                  document.getElementById('swal-input2').value,
+                  document.getElementById('swal-input3').value,
+                  document.getElementById('swal-input4').value,
+                  document.getElementById('swal-input5').value,
+               ]
             }
-          }
-        }`;
-      api_call(JSON.stringify({ query: CREATE_CARD_QUERY}),
-        function (result){
-          //SUCCESS
-          console.log(result);
-        },
-        function(xhr, ajaxOptions, thrownError){
-          //ERROR
-          console.log(JSON.stringify({ query: CREATE_CARD_QUERY}));
-          console.log(thrownError);
-        });
-    }
-    function update_card(){
-      // GET CARD VALUES
-      let card = {
-        'card_id': 5,
-        'name': "test_update",
-        'description': "description",
-        'importance': 2,
-        'finished': false,
-        'limit': "2019-10-01 15:26"
+         })
+         if (formValues) {
+            var date = formValues[3]+ " " + formValues[4]
+            update_card(id, formValues[0], formValues[1], formValues[2], date , finis);
+         }
       }
-      let UPDATE_CARD_QUERY =
-        `mutation updateCard{
-          updateCard(id: `+card['card_id']+`, input:{
-            name: "`+card['name']+`",
-            description: "`+card['description']+`",
-            importance: `+card['importance']+`,
-            limit: "`+card['limit']+`",
-            finished: `+card['finished']+`,
-          }) {
-            ok
-            card {
-              id
-              name
-              description
-              importance
-              limit
-              finished
+
+      document.querySelectorAll(".menu-list li").forEach(function (navEl) {
+         navEl.onclick = function () {
+            toggleTab(this.id, this.dataset.target);
+         }
+      });
+
+      function toggleTab(selectedNav, targetId) {
+         var navEls = document.querySelectorAll(".menu-list li");
+         navEls.forEach(function (navEl) {
+            if (navEl.id == selectedNav) {
+               navEl.classList.add("is-active");
+               $(navEl).find('a').addClass("has-background-info has-text-white");
+            } else {
+               if (navEl.classList.contains("is-active")) {
+                  navEl.classList.remove("is-active");
+                  $(navEl).find('a').removeClass("has-background-info has-text-white");
+               }
             }
-          }
-        }`;
-      api_call(JSON.stringify({ query: UPDATE_CARD_QUERY}),
-        function (result){
-          //SUCCESS
-          console.log(result);
-        },
-        function(xhr, ajaxOptions, thrownError){
-          //ERROR
-          console.log(JSON.stringify({ query: CREATE_CARD_QUERY}));
-          console.log(thrownError);
-        });
-    }
-    function delete_card(){
-      // GET CARD VALUES
-      let card = {
-        'card_id': 5
+         });
+
+         var tabs = document.querySelectorAll(".tab-pane");
+         tabs.forEach(function (tab) {
+            if (tab.id == targetId) {
+               tab.style.display = "block";
+            } else {
+               tab.style.display = "none";
+            }
+         });
       }
-      let DELETE_CARD_QUERY =
-        `mutation deleteCard{
-          deleteCard(id: `+card['card_id']+`) {
-            ok
-          }
-        }`;
-      api_call(JSON.stringify({ query: DELETE_CARD_QUERY}),
-        function (result){
-          //SUCCESS
-          console.log(result);
-        },
-        function(xhr, ajaxOptions, thrownError){
-          //ERROR
-          console.log(JSON.stringify({ query: CREATE_CARD_QUERY}));
-          console.log(thrownError);
-        });
-    }
-  </script>
+
+      function api_call(data_, success_, error_) {
+         $.ajax({
+            url: "{% url 'api' %}",
+            contentType: "application/json",
+            type: 'POST',
+            data: data_,
+            success: success_ || function (result) {},
+            error: error_ || function (xhr, ajaxOptions, thrownError) {}
+         });
+      }
+
+      function create_card(data) {
+         var date = data[3] + " " + data[4];
+         let card = {
+            'name': data[0],
+            'description': data[1],
+            'importance': parseInt(data[2]),
+            'limit': date
+         }
+
+         let CREATE_CARD_QUERY = `mutation createCard {
+            createCard(input: {
+               name: "` + card['name'] + `",
+               description: "` + card['description'] + `",
+               importance: ` + card['importance'] + `,
+               limit: "` + card['limit'] + `",
+               author: ` + {{ request.user.id }} + `
+            }) {
+               ok
+               card {
+                  id
+                  name
+                  description
+                  importance
+                  limit
+                  finished
+               }
+            }
+         }`;
+         
+         api_call(JSON.stringify({
+            query: CREATE_CARD_QUERY
+         }),
+         function (result) {
+            //SUCCESS
+            console.log(result);
+            location.reload();
+         },
+         function (xhr, ajaxOptions, thrownError) {
+            //ERROR
+            console.log(JSON.stringify({
+               query: CREATE_CARD_QUERY
+            }));
+            console.log(thrownError);
+         });
+      }
+
+      function update_card(id, name, desc, impor, limit, fini) {
+         // GET CARD VALUES
+         let card = {
+            'card_id': parseInt(id),
+            'name': name,
+            'description': desc,
+            'importance': impor,
+            'finished': fini,
+            'limit': limit
+         }
+
+         let UPDATE_CARD_QUERY = `mutation updateCard {
+            updateCard(id: ` + card['card_id'] + `, input: {
+               finished: ` + card['finished'] + `,
+               name: "` + card['name'] + `",
+               description: "` + card['description'] + `",
+               importance: ` + card['importance'] + `,
+               limit: "` + card['limit'] + `",
+            }) {
+               ok
+               card {
+                  id
+                  name
+                  description
+                  importance
+                  limit
+                  finished
+               }
+            }
+         }`;
+
+         api_call(JSON.stringify({
+            query: UPDATE_CARD_QUERY
+         }),
+         function (result) {
+            //SUCCESS
+            console.log(result);
+            location.reload();
+         },
+         function (xhr, ajaxOptions, thrownError) {
+            //ERROR
+            console.log(JSON.stringify({
+               query: UPDATE_CARD_QUERY
+            }));
+            console.log(thrownError);
+         });
+      }
+
+      function delete_card(id) {
+         // GET CARD VALUES
+         let card = {
+            'card_id': id
+         }
+         let DELETE_CARD_QUERY = `mutation deleteCard {
+            deleteCard(id: ` + card['card_id'] + `) {
+               ok
+            }
+         }`;
+         
+         api_call(JSON.stringify({
+            query: DELETE_CARD_QUERY
+         }),
+         function (result) {
+            //SUCCESS
+            console.log(result);
+            location.reload();
+         },
+         function (xhr, ajaxOptions, thrownError) {
+            //ERROR
+            console.log(JSON.stringify({
+               query: CREATE_CARD_QUERY
+            }));
+            console.log(thrownError);
+            Swal.fire(
+               'Good job!',
+               'You clicked the button!',
+               'success'
+            )         
+         });
+      }
+   </script>
 {% endblock %}

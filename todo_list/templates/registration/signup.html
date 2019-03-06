@@ -1,12 +1,87 @@
-{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load static %}
+<!doctype html>
+<html lang="es">
 
-{% block title %}Registration{% endblock %}
+<head>
+   <title>{% block title %}Register{% endblock %}</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css"/>
+   {% bootstrap_css %}
+  <style>
+    html,
+    body {
+      font-family: 'Open Sans', serif;
+      font-size: 14px;
+      font-weight: 300;
+    }
 
-{% block content %}
-<h2>Registration</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Submit</button>
-</form>
-{% endblock %}
+    .hero.is-success {
+      background: #f2f2f2;
+    }
+
+    .hero .nav,
+    .hero.is-success .nav {
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+
+    .box {
+      margin-top: 5rem;
+    }
+
+    .avatar {
+      margin-top: -70px;
+      padding-bottom: 20px;
+    }
+
+    .avatar img {
+      padding: 5px;
+      background: #fff;
+      border-radius: 50%;
+      -webkit-box-shadow: 0 2px 3px rgba(10, 10, 10, .1), 0 0 0 1px rgba(10, 10, 10, .1);
+      box-shadow: 0 2px 3px rgba(10, 10, 10, .1), 0 0 0 1px rgba(10, 10, 10, .1);
+    }
+
+    input {
+      font-weight: 300;
+    }
+
+    p {
+      font-weight: 700;
+    }
+
+    p.subtitle {
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="hero is-success is-fullheight">
+  <div class="hero-body">
+    <div class="container has-text-left">
+      <div class="column is-8 is-offset-2">
+        <h3 class="title has-text-grey has-text-centered">Register</h3>
+        <p class="subtitle has-text-grey has-text-centered">Please register to proceed.</p>
+        <div class="box">
+          <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form layout='inline' %}
+            <br>
+            <button class="button is-block is-info is-fullwidth" type="submit">Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+</body>
+
+</html>

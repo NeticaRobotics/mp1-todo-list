@@ -1,16 +1,59 @@
 {% extends "base.html" %}
-{% block title %}
-  Profile
-{% endblock %}
+{% block title %}Profile{% endblock %}
 {% block content %}
-  <div class="jumbotron">
-    <h1 class="display-3">{{request.user.first_name}} {{request.user.last_name}}</h1>
-    <p class="lead">{{request.user.email}}</p>
-    <ul>
-      <li>{{request.user.username}}</li>
-      <li>{{request.user.userdata.ocupation}}</li>
-    </ul>
-
-    <h5> <a href="{% url 'core:index' %}">Go Back</a> </h5>
+<section class="hero is-info">
+  <div class="hero-body">
+    <div class="container"></div>
+      <h1 class="title">
+        Profile
+      </h1>
+    </div>
   </div>
+</section>
+<br>
+<br>
+<section>
+  <div class="container">
+    <div class="columns">
+      <div class="column is-4 is-offset-4">
+        <div class="field">
+          <label class="label">Name</label>
+          <p class="control has-icons-left">
+            <input class="input" type="text" value="{{request.user.first_name}} {{request.user.last_name}}" readonly>
+            <span class="icon is-small is-left">
+              <i class="fas fa-address-card"></i>
+            </span>
+          </p>
+        </div> 
+        <div class="field">
+          <label class="label">Email</label>
+          <p class="control has-icons-left">
+            <input class="input" type="email" value="{{request.user.email}}" readonly>
+            <span class="icon is-small is-left">
+              <i class="fas fa-envelope"></i>
+            </span>
+          </p>
+        </div> 
+        <div class="field">
+          <label class="label">Username</label>
+          <p class="control has-icons-left">
+            <input class="input" type="text" value="{{request.user.username}}" readonly>
+            <span class="icon is-small is-left">
+              <i class="fas fa-user"></i>
+            </span>
+          </p>
+        </div> 
+        <div class="field">
+          <label class="label">Ocupation</label>
+          <p class="control has-icons-left">
+            <input class="input" type="text" value="{{request.user.userdata.ocupation}}" readonly>
+            <span class="icon is-small is-left">
+              <i class="fas fa-building"></i>
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

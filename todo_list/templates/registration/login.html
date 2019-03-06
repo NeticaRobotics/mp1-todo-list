@@ -1,17 +1,106 @@
-{% extends 'base.html' %}
+{% load bootstrap4 %}
+{% load static %}
+<!doctype html>
+<html lang="es">
 
-{% block title %}Login{% endblock %}
+<head>
+   <title>{% block title %}Login{% endblock %}</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css"/>
+   {% bootstrap_css %}
+   <style>
+      html,
+      body {
+         font-family: 'Open Sans', serif;
+         font-size: 14px;
+         font-weight: 300;
+      }
 
-{% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
-<br>
-<p><strong>-- OR --</strong></p>
-<a href="{% url 'signup' %}">Sign Up</a><br>
-<a href="{% url 'social:begin' 'github' %}">Login with GitHub</a><br>
-<a href="{% url 'social:begin' 'linkedin-oauth2' %}">Login with Linkedin</a><br>
-{% endblock %}
+      .hero.is-success {
+         background: #f2f2f2;
+      }
+
+      .hero .nav,
+      .hero.is-success .nav {
+         -webkit-box-shadow: none;
+         box-shadow: none;
+      }
+
+      .box {
+         margin-top: 5rem;
+      }
+
+      .avatar {
+         margin-top: -70px;
+         padding-bottom: 20px;
+      }
+
+      .avatar img {
+         padding: 5px;
+         background: #fff;
+         border-radius: 50%;
+         -webkit-box-shadow: 0 2px 3px rgba(10, 10, 10, .1), 0 0 0 1px rgba(10, 10, 10, .1);
+         box-shadow: 0 2px 3px rgba(10, 10, 10, .1), 0 0 0 1px rgba(10, 10, 10, .1);
+      }
+
+      input {
+         font-weight: 300;
+      }
+
+      p {
+         font-weight: 700;
+      }
+
+      p.subtitle {
+         padding-top: 1rem;
+      }
+   </style>
+</head>
+
+<body>
+   <section class="hero is-success is-fullheight">
+      <div class="hero-body">
+         <div class="container has-text-centered">
+            <div class="column is-half is-offset-one-quarter">
+               <h3 class="title has-text-grey">Login</h3>
+               <p class="subtitle has-text-grey">Please login to proceed.</p>
+               <div class="box">
+                  <figure class="avatar">
+                     <img src="{% static 'img/check.png' %}" width="128" height="128">
+                  </figure>
+                  <form method="post">
+                     {% csrf_token %}
+                     {% bootstrap_field form.username show_label=false %}
+                     {% bootstrap_field form.password show_label=false %}
+                     <button class="button is-block is-info is-fullwidth" type="submit">Login</button>
+                  </form>
+                  <hr>
+                  <a class="button is-block is-primary is-fullwidth" href="{% url 'signup' %}">Sign Up</a><br>
+                  <p class="has-text-grey-light" style="margin-bottom: 21px;"><strong>-- OR --</strong></p>
+                  <a class="button is-block is-primary is-fullwidth " href="{% url 'social:begin' 'github' %}" style="background: #6e5494;">
+                     Login with GitHub &nbsp
+                     <span class="icon is-small">
+                        <i class="fab fa-github"></i>
+                     </span>
+                  </a>
+                  <a class="button is-block is-primary is-fullwidth" href="{% url 'social:begin' 'linkedin-oauth2' %}"
+                     style="margin-top: 14px;  background: #0077b5;">
+                     Login with Linkedin &nbsp
+                     <span class="icon is-small">
+                        <i class="fab fa-linkedin"></i>
+                     </span>
+                  </a>
+               </div>
+            </div>
+         </div>
+      </div>
+   </section>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+</body>
+
+</html>
